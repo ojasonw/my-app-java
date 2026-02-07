@@ -1,4 +1,4 @@
-# my-java-app: Aplicação Java Exemplo com CI/CD GitOps
+# Aplicação Java Exemplo com CI/CD GitOps completo.
 
 Este repositório contém uma aplicação Java de exemplo configurada com um pipeline de CI/CD robusto usando GitHub Actions, Docker e um fluxo GitOps para implantação automatizada no Kubernetes via Argo CD.
 
@@ -33,28 +33,28 @@ O pipeline é acionado por pushes e tags Git, e tem uma lógica condicional para
 
 ```mermaid
 graph TD
-    A[Início: Push Git] --> B{Tipo de Push?};
+  A[Início: Push Git] --> B{Tipo de evento}
 
-    B -- Push na 'main' --> C{Build & Test Job};
-    B -- Push de Tag (vX.Y.Z) --> C;
-    B -- Pull Request (main) --> C;
+  B -- main --> C[Build & Test Job]
+  B -- tag vX.Y.Z --> C
+  B -- pull request --> C
 
-    C --> D{Build & Test Job Concluído com Sucesso?};
+  C --> D{Build e testes OK}
 
-    D -- Sim --> E{Push é uma Tag Git (vX.Y.Z)?};
-    D -- Não --> F[Fim: Apenas Build & Teste concluído];
+  D -- Sim --> E{Evento é tag vX.Y.Z}
+  D -- Não --> F[Fim: só build e testes]
 
-    E -- Sim --> G[Build & Push Docker Job];
-    E -- Não --> F;
+  E -- Sim --> G[Build & Push Docker]
+  E -- Não --> F
 
-    G --> H[Docker Hub];
-    G --> I[Update GitOps Repo Job];
+  G --> H[Docker Hub]
+  G --> I[Atualizar repo GitOps]
 
-    I --> J[platform-gitops Repo (PR Aberto)];
-    J --> K[Argo CD detecta PR e Sincroniza];
-    K --> L[Kubernetes Cluster (Deploy)];
-
-    L --> M[Fim: Nova Versão Implantada];
+  I --> J[platform-gitops: PR aberto]
+  J --> K[Merge no GitOps]
+  K --> L[Argo CD sincroniza]
+  L --> M[Kubernetes: Deploy]
+  M --> N[Fim: nova versão implantada]
 ```
 
 ### 🧠 Detalhes do Workflow (`.github/workflows/ci.yml`)
@@ -125,14 +125,5 @@ Uma vez que o Pull Request no `platform-gitops` for aprovado e mesclado na branc
 
 1.  O **Argo CD** (que está monitorando o `platform-gitops`) detectará a nova versão da imagem.
 2.  Ele iniciará automaticamente o processo de sincronização e implantação da nova versão no seu cluster Kubernetes.
-
----
-
-## 🔮 Próximos Passos e Melhorias
-
-*   **oldTag para Rollback:** Para ter um mecanismo de rollback mais rápido, podemos implementar a lógica de manter uma `oldTag` no `kustomization.yaml` (isso exigiria manipulação de YAML mais avançada na Action).
-*   **Automação de Tags:** Explorar ferramentas como Semantic Release para gerar tags Git automaticamente com base em convenções de commit.
-*   **Multi-ambiente:** Estender o fluxo para promover imagens para ambientes de `prod` após testes em `dev`.
-*   **Testes de Integração/E2E:** Adicionar mais estágios de teste ao pipeline.
 
 ---
