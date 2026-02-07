@@ -107,12 +107,7 @@ jobs:
           # e apenas substitui a 'newTag'. Adicione o bloco 'images' se ele não existir.
           sed -i "s/newTag: .*/newTag: sha-${{ github.sha }}/" kustomization.yaml
           
-          # Se o bloco 'images' não existir no kustomization.yaml, você pode adicioná-lo:
-          # echo -e "
-images:
-- name: my-service
-  newTag: sha-${{ github.sha }}" >> kustomization.yaml
-          # NOTA: O nome 'my-service' no 'images' deve ser o mesmo nome do container no deployment base.
+
 
       - name: "Cria um Pull Request"
         uses: peter-evans/create-pull-request@v4
