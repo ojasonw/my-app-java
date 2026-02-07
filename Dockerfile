@@ -9,7 +9,7 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Estágio 2: Criação da imagem final, menor
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:11-jre
 WORKDIR /app
 # Copia o JAR do estágio de build para a imagem final
 COPY --from=build /app/target/my-java-app-1.0-SNAPSHOT.jar .
