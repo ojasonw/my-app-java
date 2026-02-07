@@ -4,10 +4,10 @@ name: Java CI/CD com Docker e GitOps
 # Triggers: O que dispara a action
 on:
   push:
-    branches: [ "main" ] # Para pushes em main, manter a tag 'latest'
-    tags: [ 'v*.*.*' ] # Disparar quando uma tag vX.Y.Z for criada e enviada
+    branches: [ "main" ] # Para pushes em main, apenas build e teste
+    tags: [ 'v*.*.*' ] # Disparar Builds, Push Docker e PR GitOps quando uma tag vX.Y.Z for criada e enviada
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main" ] # Para PRs, apenas build e teste
 
 jobs:
   ###########################################
@@ -36,18 +36,18 @@ jobs:
   ##################################################
   # Job 2: Build e Push da Imagem Docker          #
   # Este job só roda se o primeiro for bem sucedido #
-  # e se o evento for um push na branch 'main' ou uma tag. #
+  # E APENAS SE FOR UM PUSH DE TAG (vX.Y.Z).        #
   ##################################################
   build_and_push_docker:
     name: Build e Push da Imagem Docker
     runs-on: ubuntu-latest
     needs: build_and_test
-    # Condição: Só executa em pushes para a branch 'main' OU para tags
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    # Condição: SÓ executa em pushes de tags (releases manuais)
+    if: startsWith(github.ref, 'refs/tags/v')
     
-    # Define a versão da imagem: usa a tag Git se for um evento de tag, senão usa o SHA
+    # Define a versão da imagem: usa a tag Git
     env:
-      IMAGE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || format('sha-{0}', github.sha) }}
+      IMAGE_VERSION: ${{ github.ref_name }} # Quando o if for true, github.ref_name será a tag
 
     steps:
       - name: "Checkout do código da aplicação"
@@ -70,25 +70,24 @@ jobs:
         with:
           context: .
           push: true
-          # Adicionar a tag 'latest' apenas em pushes para a branch principal
-          tags: |
-            ojasonw/my-java-app:${{ env.IMAGE_VERSION }}
-            ojasonw/my-java-app:latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+          # A imagem será tagueada APENAS com a tag Git (ex: ojasonw/my-java-app:v1.0.0)
+          tags: ojasonw/my-java-app:${{ env.IMAGE_VERSION }}
 
   ########################################################
   # Job 3: Abre um PR no Repositório GitOps             #
   # Atualiza a tag da imagem no ambiente de dev.        #
+  # E APENAS SE FOR UM PUSH DE TAG (vX.Y.Z).            #
   ########################################################
   update_gitops_repo:
     name: Atualiza Repositório GitOps
     runs-on: ubuntu-latest
     needs: build_and_push_docker
-    # Condição: Só executa se for um push para a branch 'main' OU uma tag.
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    # Condição: SÓ executa se for um push de tag (releases manuais)
+    if: startsWith(github.ref, 'refs/tags/v')
     
-    # Define a versão da imagem: usa a tag Git se for um evento de tag, senão usa o SHA
+    # A versão da imagem é a tag Git
     env:
-      IMAGE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || format('sha-{0}', github.sha) }}
+      IMAGE_VERSION: ${{ github.ref_name }}
 
     steps:
       - name: "Checkout do repositório GitOps (platform-gitops)"
