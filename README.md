@@ -92,7 +92,7 @@ O arquivo `ci.yml` define três jobs principais que orquestram o pipeline:
 
 ## 🔑 Configuração de Secrets (IMPORTE!)
 
-Para que o pipeline funcione, você precisa configurar os seguintes secrets no seu repositório `my-java-app` no GitHub (`Settings > Secrets and variables > Actions`):
+Para que o pipeline funcione, precisamos configurar os seguintes secrets no seu repositório `my-java-app` no GitHub (`Settings > Secrets and variables > Actions`):
 
 *   **`DOCKERHUB_USERNAME`**: Seu nome de usuário do Docker Hub.
 *   **`DOCKERHUB_TOKEN`**: Um token de acesso gerado no Docker Hub (não sua senha!).
