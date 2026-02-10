@@ -1,0 +1,117 @@
+name: Java CI/CD com Docker e GitOps
+
+# Triggers: O que dispara a action
+on:
+  push:
+    branches: [ "main" ] # Para pushes em main, apenas build e teste
+    tags: [ 'v*.*.*' ] # Disparar Builds, Push Docker e PR GitOps quando uma tag vX.Y.Z for criada e enviada
+  pull_request:
+    branches: [ "main" ] # Para PRs, apenas build e teste
+
+jobs:
+  ###########################################
+  # Job 1: Build e Teste da Aplicação Java #
+  ###########################################
+  build_and_test:
+    name: Build e Teste
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout do código da aplicação"
+        uses: actions/checkout@v3
+
+      - name: "Configura o Java (JDK)"
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: "Roda os testes com Maven"
+        run: mvn test
+
+      - name: "Empacota a aplicação com Maven"
+        run: mvn package -DskipTests
+
+  ##################################################
+  # Job 2: Build e Push da Imagem Docker          #
+  # Este job só roda se o primeiro for bem sucedido #
+  # E APENAS SE FOR UM PUSH DE TAG (vX.Y.Z).        #
+  ##################################################
+  build_and_push_docker:
+    name: Build e Push da Imagem Docker
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    # Condição: SÓ executa em pushes de tags (releases manuais)
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    # Define a versão da imagem: usa a tag Git
+    env:
+      IMAGE_VERSION: ${{ github.ref_name }} # Quando o if for true, github.ref_name será a tag
+
+    steps:
+      - name: "Checkout do código da aplicação"
+        uses: actions/checkout@v3
+
+      - name: "Configura o QEMU (para build multi-plataforma, opcional mas bom)"
+        uses: docker/setup-qemu-action@v2
+
+      - name: "Configura o Docker Buildx"
+        uses: docker/setup-buildx-action@v2
+
+      - name: "Login no Docker Hub"
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: "Build e Push da imagem"
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          # A imagem será tagueada APENAS com a tag Git (ex: ojasonw/my-java-app:v1.0.0)
+          tags: ojasonw/my-java-app:${{ env.IMAGE_VERSION }}
+
+  ########################################################
+  # Job 3: Abre um PR no Repositório GitOps             #
+  # Atualiza a tag da imagem no ambiente de dev.        #
+  # E APENAS SE FOR UM PUSH DE TAG (vX.Y.Z).            #
+  ########################################################
+  update_gitops_repo:
+    name: Atualiza Repositório GitOps
+    runs-on: ubuntu-latest
+    needs: build_and_push_docker
+    # Condição: SÓ executa se for um push de tag (releases manuais)
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    # A versão da imagem é a tag Git
+    env:
+      IMAGE_VERSION: ${{ github.ref_name }}
+
+    steps:
+      - name: "Checkout do repositório GitOps (platform-gitops)"
+        uses: actions/checkout@v3
+        with:
+          repository: ojasonw/platform-gitops
+          token: ${{ secrets.GITOPS_PAT }}
+
+      - name: "Atualiza a tag da imagem no kustomization.yaml de dev"
+        run: |
+          cd apps/my-service/overlays/dev
+          # Usa 'sed' para substituir a newTag pela IMAGE_VERSION
+          sed -i "s/newTag: .*/newTag: ${{ env.IMAGE_VERSION }}/" kustomization.yaml
+          
+          # NOTA: A lógica para oldTag é mais complexa e requer ferramentas como 'yq'
+          # ou um script mais elaborado para manipular YAML sem quebrar.
+          # Por enquanto, vamos manter apenas a atualização do newTag.
+
+      - name: "Cria um Pull Request"
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITOPS_PAT }}
+          commit-message: "Update image tag for my-service to ${{ env.IMAGE_VERSION }}"
+          title: "CI: Atualiza imagem do my-service para ${{ env.IMAGE_VERSION }}"
+          body: "Atualização automática da imagem pela GitHub Action."
+          branch: "update-image-my-service-${{ env.IMAGE_VERSION }}"
+          base: "main"
+          delete-branch: true
