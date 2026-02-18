@@ -1,8 +1,7 @@
 package br.com.joga_together.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -10,11 +9,9 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record UserCreateRequestDto(
-        @Min(3)
-        @Max(15)
+        @Size(min = 3, max = 15)
         String username,
-        @Min(8)
-        @Max(14)
+        @Size(min = 8, max = 14)
         String password,
         @CPF
         String cpf,

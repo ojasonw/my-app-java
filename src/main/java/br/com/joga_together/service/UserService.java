@@ -27,7 +27,7 @@ public class UserService {
     }
 
     @Transactional
-    public void creteUser(UserCreateRequestDto request) {
+    public void createUser(UserCreateRequestDto request) {
         User user = userMapper.toEntity(request);
         user.setUserStatus(UserStatus.INACTIVE);
         user.setCreationDate(LocalDateTime.now());
