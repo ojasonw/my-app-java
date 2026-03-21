@@ -29,14 +29,9 @@ public class GameController {
     }
 
     @GetMapping("/all")
-    @RateLimiter(name = "games", fallbackMethod = "fallbackGetAllGames")
     public ResponseEntity<List<GameResponseDto>> allGames(){
         List<GameResponseDto>games = gameService.getAllGames();
         return ResponseEntity.ok(games);
     }
 
-    public ResponseEntity<ErrorResponseDto>fallbackGetAllGames(RequestNotPermitted e){
-        ErrorResponseDto errorResponseDto = new ErrorResponseDto(LocalDateTime.now().toString(), 429, "ManyRequests", e.getMessage());
-        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(errorResponseDto);
-    }
 }

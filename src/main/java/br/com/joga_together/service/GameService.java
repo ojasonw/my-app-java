@@ -35,7 +35,8 @@ public class GameService {
                 dto.description(),
                 LocalDate.from(dateTimeFormatter.parse(dto.releaseDate())),
                 dto.developer(),
-                dto.genre()
+                dto.genre(),
+                null
         );
     }
 

@@ -3,14 +3,12 @@ package br.com.joga_together.model;
 import br.com.joga_together.model.enums.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -36,7 +34,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
     @ManyToMany(mappedBy = "users")
-    public Set<Scheduling>schedulings;
+    public Set<Scheduling>schedulings = new HashSet<>();
+
+    @ManyToMany(mappedBy = "users")
+    public Set<Group> groups = new HashSet<>();
 
     private String verificationCode;
     private LocalDateTime codeExpiresAt;

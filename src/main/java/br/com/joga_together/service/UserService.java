@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -63,6 +65,12 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    public User findById(UUID id){
+        return userRepository.findById(id).orElseThrow(
+                () -> new NoSuchElementException("user with this id: "+id + ", not found")
+        );
     }
 
 }
