@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -24,4 +26,6 @@ public class Game {
     private LocalDate releaseDate;
     private String developer;
     private String genre;
+    @ManyToMany(mappedBy = "games")
+    Set<Group> groups = new HashSet<>();
 }

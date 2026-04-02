@@ -1,7 +1,7 @@
 package br.com.joga_together.controller;
 
-import br.com.joga_together.dto.ConfirmCodeDto;
-import br.com.joga_together.dto.UserCreateRequestDto;
+import br.com.joga_together.dto.user.ConfirmCodeDto;
+import br.com.joga_together.dto.user.UserCreateRequestDto;
 import br.com.joga_together.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

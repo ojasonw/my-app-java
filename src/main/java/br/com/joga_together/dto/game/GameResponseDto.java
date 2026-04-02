@@ -1,4 +1,4 @@
-package br.com.joga_together.dto;
+package br.com.joga_together.dto.game;
 
 import java.util.UUID;
 
