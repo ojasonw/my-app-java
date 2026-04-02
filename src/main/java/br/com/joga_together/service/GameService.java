@@ -1,7 +1,7 @@
 package br.com.joga_together.service;
 
-import br.com.joga_together.dto.GameCreateRequestDto;
-import br.com.joga_together.dto.GameResponseDto;
+import br.com.joga_together.dto.game.GameCreateRequestDto;
+import br.com.joga_together.dto.game.GameResponseDto;
 import br.com.joga_together.exception.GameAlreadyExistsException;
 import br.com.joga_together.model.Game;
 import br.com.joga_together.repository.GameRepository;

@@ -1,18 +1,13 @@
 package br.com.joga_together.controller;
 
-import br.com.joga_together.dto.ErrorResponseDto;
-import br.com.joga_together.dto.GameCreateRequestDto;
-import br.com.joga_together.dto.GameResponseDto;
+import br.com.joga_together.dto.game.GameCreateRequestDto;
+import br.com.joga_together.dto.game.GameResponseDto;
 import br.com.joga_together.service.GameService;
-import io.github.resilience4j.ratelimiter.RequestNotPermitted;
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController

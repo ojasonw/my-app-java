@@ -1,12 +1,9 @@
 package br.com.joga_together.controller;
 
-import br.com.joga_together.dto.CreateGroupRequestDto;
+import br.com.joga_together.dto.group.CreateGroupRequestDto;
 import br.com.joga_together.service.GroupService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.UUID;
@@ -27,5 +24,13 @@ public class GroupController {
     public ResponseEntity<UUID>postCreateGroup(@RequestBody CreateGroupRequestDto dto){
         UUID groupId = groupService.createGroup(dto);
         return ResponseEntity.created(URI.create("/groups/" + groupId)).body(UUID.randomUUID());
+    }
+
+    @PatchMapping("/{groupId}/add-user/{userId}")
+    //TODO trocar o void por um retorno mais adequado, como um DTO de resposta ou um status HTTP específico
+    public ResponseEntity<Void>addUserToGroup(@PathVariable("groupId")UUID groupId, @PathVariable("userId")UUID userId){
+        //TODO implementar a lógica para adicionar um usuário a um grupo usando o GroupService
+        groupService.addUserToGroup(groupId, userId);
+        return ResponseEntity.ok().build();
     }
 }

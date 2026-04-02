@@ -2,6 +2,7 @@ package br.com.joga_together.handler;
 
 import br.com.joga_together.dto.ErrorResponseDto;
 import br.com.joga_together.exception.GameAlreadyExistsException;
+import br.com.joga_together.exception.UserAlreadyInGroupException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,5 +18,16 @@ public class GlobalHandlerException {
                 ex.getMessage()
         );
         return ResponseEntity.badRequest().body(errorResponseDto);
+    }
+
+    @ExceptionHandler(UserAlreadyInGroupException.class)
+    public ResponseEntity<ErrorResponseDto>handlerExceptionUserAlreadyInGroup(UserAlreadyInGroupException ex){
+        ErrorResponseDto responseDto = new ErrorResponseDto(
+                String.valueOf(System.currentTimeMillis()),
+                409,
+                "Conflict",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(409).body(responseDto);
     }
 }

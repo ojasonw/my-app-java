@@ -37,4 +37,6 @@ public class Group {
             inverseJoinColumns = @JoinColumn(name = "game_id")
     )
     private Set<Game> games = new HashSet<>();
+    @OneToMany(mappedBy = "group")
+    private Set<Scheduling> schedulings = new HashSet<>();
 }

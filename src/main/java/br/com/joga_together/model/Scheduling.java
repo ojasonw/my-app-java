@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -33,5 +34,9 @@ public class Scheduling {
             joinColumns = @JoinColumn(name = "scheduling_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User>users;
+    private Set<User>users = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "group_id")
+    private Group group;
 }
