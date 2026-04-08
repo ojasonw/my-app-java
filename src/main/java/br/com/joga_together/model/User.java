@@ -3,6 +3,7 @@ package br.com.joga_together.model;
 import br.com.joga_together.model.enums.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
 
@@ -23,6 +24,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String username;
+    @NotBlank
     private String password;
     @CPF
     @Column(unique = true)
