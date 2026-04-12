@@ -12,7 +12,7 @@ public record SchedulingResponseDto(
         String name,
         LocalDate date,
         LocalTime time,
-        List<UserResponseToSchedulingDto>users,
+        List<UserResponseToSchedulingDto> users,
         GroupResponseToSchedulingDto group
 ) {
 }
