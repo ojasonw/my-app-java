@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_test
     # Condição: SÓ executa em pushes de tags (releases manuais)
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
 
     # Define a versão da imagem: usa a tag Git
     env:
@@ -82,36 +82,68 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_push_docker
     # Condição: SÓ executa se for um push de tag (releases manuais)
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
 
     # A versão da imagem é a tag Git
     env:
       IMAGE_VERSION: ${{ github.ref_name }}
 
     steps:
-      - name: "Checkout do repositório GitOps (platform-gitops)"
-        uses: actions/checkout@v3
+      - name: "Checkout do repositório Homelab GitOps"
+        uses: actions/checkout@v4
+        with:
+          repository: ojasonw/homelab-gitops
+          token: ${{ secrets.GITOPS_PAT }}
+          path: homelab-gitops
+
+      - name: "Checkout do repositório Platform GitOps"
+        uses: actions/checkout@v4
         with:
           repository: ojasonw/platform-gitops
           token: ${{ secrets.GITOPS_PAT }}
+          path: platform-gitops
 
-      - name: "Atualiza a tag da imagem no kustomization.yaml de dev"
+      - name: "Instala o yq"
         run: |
-          cd apps/my-service/overlays/dev
-          # Usa 'sed' para substituir a newTag pela IMAGE_VERSION
-          sed -i "s/newTag: .*/newTag: ${{ env.IMAGE_VERSION }}/" kustomization.yaml
-          
-          # NOTA: A lógica para oldTag é mais complexa e requer ferramentas como 'yq'
-          # ou um script mais elaborado para manipular YAML sem quebrar.
-          # Por enquanto, vamos manter apenas a atualização do newTag.
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
 
-      - name: "Cria um Pull Request"
-        uses: peter-evans/create-pull-request@v4
+      - name: "Atualiza a tag da imagem no Homelab GitOps"
+        run: |
+          cd homelab-gitops/infra/joga-together/base
+          yq -i '(.images[] | select(.name == "ojasonw/my-java-app") | .newTag) = strenv(IMAGE_VERSION)' kustomization.yaml
+
+      - name: "Atualiza a tag da imagem no Platform GitOps"
+        run: |
+          cd platform-gitops/apps/my-service/overlays/dev
+          yq -i '(.images[] | select(.name == "ojasonw/my-java-app") | .newTag) = strenv(IMAGE_VERSION)' kustomization.yaml
+
+      - name: "Cria um Pull Request no Homelab GitOps"
+        uses: peter-evans/create-pull-request@v6
         with:
+          path: homelab-gitops
           token: ${{ secrets.GITOPS_PAT }}
-          commit-message: "Update image tag for my-service to ${{ env.IMAGE_VERSION }}"
-          title: "CI: Atualiza imagem do my-service para ${{ env.IMAGE_VERSION }}"
-          body: "Atualização automática da imagem pela GitHub Action."
-          branch: "update-image-my-service-${{ env.IMAGE_VERSION }}"
+          commit-message: "chore: update my-java-app image to ${{ env.IMAGE_VERSION }}"
+          title: "CI: Atualiza my-java-app para ${{ env.IMAGE_VERSION }}"
+          body: |
+            Atualização automática da imagem pela GitHub Action no repositório Homelab GitOps.
+
+            **Image:** `ojasonw/my-java-app:${{ env.IMAGE_VERSION }}`
+          branch: "update-my-java-app-homelab-${{ env.IMAGE_VERSION }}"
+          base: "main"
+          delete-branch: true
+
+      - name: "Cria um Pull Request no Platform GitOps"
+        uses: peter-evans/create-pull-request@v6
+        with:
+          path: platform-gitops
+          token: ${{ secrets.GITOPS_PAT }}
+          commit-message: "chore: update my-java-app image to ${{ env.IMAGE_VERSION }}"
+          title: "CI: Atualiza my-java-app para ${{ env.IMAGE_VERSION }}"
+          body: |
+            Atualização automática da imagem pela GitHub Action no repositório Platform GitOps.
+
+            **Image:** `ojasonw/my-java-app:${{ env.IMAGE_VERSION }}`
+          branch: "update-my-java-app-platform-${{ env.IMAGE_VERSION }}"
           base: "main"
           delete-branch: true
