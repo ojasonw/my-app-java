@@ -5,6 +5,7 @@ import br.com.joga_together.exception.CodeInvalidOrExpireException;
 import br.com.joga_together.exception.GameAlreadyExistsException;
 import br.com.joga_together.exception.UserAlreadyExistsException;
 import br.com.joga_together.exception.UserAlreadyInGroupException;
+import br.com.joga_together.exception.UserByEmailNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,17 @@ public class GlobalHandlerException {
                 ex.getMessage()
         );
         return ResponseEntity.status(400).body(responseDto);
+    }
+
+    @ExceptionHandler(UserByEmailNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handlerUserByEmailNotFound(UserByEmailNotFoundException ex) {
+        ErrorResponseDto responseDto = new ErrorResponseDto(
+                String.valueOf(System.currentTimeMillis()),
+                404,
+                "Not Found",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(404).body(responseDto);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
