@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,10 +16,12 @@ public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
+    @Async
     public void sendConfirmCodeRegistrer(
             String to, String code) {
         try{
             SimpleMailMessage message = new SimpleMailMessage();
+            //TODO AJUSTAR ISSO PARA VAR DE AMBIENTE
             message.setFrom("jogatogether@gmail.com");
             message.setTo(to);
             message.setSubject("Confirmação de Registro - Joga Together");
@@ -28,7 +31,7 @@ public class EmailService {
                     "lembrando que o código expira em 15 minutos.");
             emailSender.send(message);
         } catch (RuntimeException e) {
-            log.info("ERROR TO SEND EMAIL: "+e.getCause().getMessage());
+            log.info("ERROR TO SEND EMAIL: "+e.getMessage());
         }
 
     }

@@ -7,12 +7,11 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
-public record SchedulingResponseDto(
+public record SchedulingsByGroupIdResponseDto(
         UUID id,
         String name,
         LocalDate date,
         LocalTime time,
-        List<UserResponseToSchedulingDto>users,
-        GroupResponseToSchedulingDto group
+        List<UserResponseToSchedulingDto>users
 ) {
 }
