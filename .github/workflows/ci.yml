@@ -69,8 +69,8 @@ jobs:
         with:
           context: .
           push: true
-          # A imagem será tagueada APENAS com a tag Git (ex: ojasonw/my-java-app:v1.0.0)
-          tags: ojasonw/my-java-app:${{ env.IMAGE_VERSION }}
+          # A imagem será tagueada APENAS com a tag Git (ex: ojasonw/joga-together-backend:v1.0.0)
+          tags: ojasonw/joga-together-backend:${{ env.IMAGE_VERSION }}
 
   ########################################################
   # Job 3: Abre um PR no Repositório GitOps             #
@@ -111,25 +111,25 @@ jobs:
       - name: "Atualiza a tag da imagem no Homelab GitOps"
         run: |
           cd homelab-gitops/infra/joga-together/base
-          yq -i '(.images[] | select(.name == "ojasonw/my-java-app") | .newTag) = strenv(IMAGE_VERSION)' kustomization.yaml
+          yq -i '(.images[] | select(.name == "ojasonw/joga-together-backend") | .newTag) = strenv(IMAGE_VERSION)' kustomization.yaml
 
       - name: "Atualiza a tag da imagem no Platform GitOps"
         run: |
           cd platform-gitops/apps/my-service/overlays/dev
-          yq -i '(.images[] | select(.name == "ojasonw/my-java-app") | .newTag) = strenv(IMAGE_VERSION)' kustomization.yaml
+          yq -i '(.images[] | select(.name == "ojasonw/joga-together-backend") | .newTag) = strenv(IMAGE_VERSION)' kustomization.yaml
 
       - name: "Cria um Pull Request no Homelab GitOps"
         uses: peter-evans/create-pull-request@v6
         with:
           path: homelab-gitops
           token: ${{ secrets.GITOPS_PAT }}
-          commit-message: "chore: update my-java-app image to ${{ env.IMAGE_VERSION }}"
-          title: "CI: Atualiza my-java-app para ${{ env.IMAGE_VERSION }}"
+          commit-message: "chore: update joga-together-backend image to ${{ env.IMAGE_VERSION }}"
+          title: "CI: Atualiza joga-together-backend para ${{ env.IMAGE_VERSION }}"
           body: |
             Atualização automática da imagem pela GitHub Action no repositório Homelab GitOps.
 
-            **Image:** `ojasonw/my-java-app:${{ env.IMAGE_VERSION }}`
-          branch: "update-my-java-app-homelab-${{ env.IMAGE_VERSION }}"
+            **Image:** `ojasonw/joga-together-backend:${{ env.IMAGE_VERSION }}`
+          branch: "update-joga-together-backend-homelab-${{ env.IMAGE_VERSION }}"
           base: "main"
           delete-branch: true
 
@@ -138,12 +138,12 @@ jobs:
         with:
           path: platform-gitops
           token: ${{ secrets.GITOPS_PAT }}
-          commit-message: "chore: update my-java-app image to ${{ env.IMAGE_VERSION }}"
-          title: "CI: Atualiza my-java-app para ${{ env.IMAGE_VERSION }}"
+          commit-message: "chore: update joga-together-backend image to ${{ env.IMAGE_VERSION }}"
+          title: "CI: Atualiza joga-together-backend para ${{ env.IMAGE_VERSION }}"
           body: |
             Atualização automática da imagem pela GitHub Action no repositório Platform GitOps.
 
-            **Image:** `ojasonw/my-java-app:${{ env.IMAGE_VERSION }}`
-          branch: "update-my-java-app-platform-${{ env.IMAGE_VERSION }}"
+            **Image:** `ojasonw/joga-together-backend:${{ env.IMAGE_VERSION }}`
+          branch: "update-joga-together-backend-platform-${{ env.IMAGE_VERSION }}"
           base: "main"
           delete-branch: true
