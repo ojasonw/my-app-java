@@ -103,6 +103,7 @@ public class UserService {
             throw new UserAlreadyExistsException("Email already registered");
         }
         existingUser.setUsername(request.username());
+        existingUser.setPassword(request.password()); // reset para plain text antes do encode em applyVerificationSetup
         applyVerificationSetup(existingUser);
     }
 
