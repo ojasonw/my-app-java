@@ -1,0 +1,61 @@
+name: Dev Deploy - joga-together-back
+
+on:
+  push:
+    branches: [ "dev" ]
+
+jobs:
+  build_and_push:
+    name: Build e Push imagem dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build com Maven
+        run: mvn package -DskipTests
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build e Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ojasonw/joga-together-backend:dev
+
+  update_gitops_dev:
+    name: Atualiza overlay dev no GitOps
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - name: Checkout homelab-gitops
+        uses: actions/checkout@v4
+        with:
+          repository: ojasonw/homelab-gitops
+          token: ${{ secrets.GITOPS_PAT }}
+
+      - name: Commit e push direto
+        run: |
+          git config user.email "ci@github.com"
+          git config user.name "GitHub Actions"
+          # Força re-sync do ArgoCD tocando o timestamp no overlay
+          echo "# last-deploy: $(date -u +%Y-%m-%dT%H:%M:%SZ) sha: ${GITHUB_SHA::7}" \
+            > infra/joga-together/overlays/dev/.last-deploy
+          git add infra/joga-together/overlays/dev/.last-deploy
+          git diff --staged --quiet || git commit -m "chore: deploy joga-together-back dev (${GITHUB_SHA::7})"
+          git push
