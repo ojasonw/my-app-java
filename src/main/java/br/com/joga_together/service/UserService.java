@@ -11,6 +11,7 @@ import br.com.joga_together.model.User;
 import br.com.joga_together.model.enums.UserStatus;
 import br.com.joga_together.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class UserService {
     private final UserMapper userMapper;
@@ -36,7 +38,7 @@ public class UserService {
     }
 
     @Transactional
-    public void creteUser(UserCreateRequestDto request) {
+    public void creteUser(UserCreateRequestDto request){
         userRepository.findByEmail(request.email()).ifPresentOrElse(
                 existingUser -> {
                     updateExistingUserForReRegistration(existingUser, request);

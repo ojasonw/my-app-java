@@ -20,6 +20,7 @@ public class EmailService {
     public void sendConfirmCodeRegistrer(String to, String code) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            //TODO AJUSTAR ISSO PARA VAR DE AMBIENTE
             message.setFrom("jogatogether@gmail.com");
             message.setTo(to);
             message.setSubject("Confirmação de Registro - Joga Together");
