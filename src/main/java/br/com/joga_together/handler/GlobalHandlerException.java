@@ -1,10 +1,7 @@
 package br.com.joga_together.handler;
 
 import br.com.joga_together.dto.ErrorResponseDto;
-import br.com.joga_together.exception.CodeInvalidOrExpireException;
-import br.com.joga_together.exception.GameAlreadyExistsException;
-import br.com.joga_together.exception.UserAlreadyExistsException;
-import br.com.joga_together.exception.UserAlreadyInGroupException;
+import br.com.joga_together.exception.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -50,6 +47,28 @@ public class GlobalHandlerException {
                 String.valueOf(System.currentTimeMillis()),
                 400,
                 "code invalid",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(400).body(responseDto);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponseDto>handlerBussinesException(BusinessException ex){
+        ErrorResponseDto responseDto = new ErrorResponseDto(
+                String.valueOf(System.currentTimeMillis()),
+                400,
+                "error of business",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(400).body(responseDto);
+    }
+
+    @ExceptionHandler(LoginExpiredOrBlockedException.class)
+    public ResponseEntity<ErrorResponseDto>handlerLogin(LoginExpiredOrBlockedException ex){
+        ErrorResponseDto responseDto = new ErrorResponseDto(
+                String.valueOf(System.currentTimeMillis()),
+                400,
+                "error of login",
                 ex.getMessage()
         );
         return ResponseEntity.status(400).body(responseDto);
