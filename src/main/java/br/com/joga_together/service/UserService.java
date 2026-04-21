@@ -10,6 +10,7 @@ import br.com.joga_together.mapper.UserMapper;
 import br.com.joga_together.model.User;
 import br.com.joga_together.model.enums.UserStatus;
 import br.com.joga_together.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -115,4 +116,9 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new EntityNotFoundException(String .format("user with this email '%s' não encontrado", email)
+        ));
+    }
 }
