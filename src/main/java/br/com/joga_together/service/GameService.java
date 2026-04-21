@@ -28,7 +28,7 @@ public class GameService {
         return gameEntityToResponseDto(game);
     }
     private Game gameDtoToEntity(GameCreateRequestDto dto) {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return new Game(
                 null,
                 dto.title(),

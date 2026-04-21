@@ -23,7 +23,7 @@ public class GroupController {
     @PostMapping(value = POST_CREATE_GROUP, produces = "application/json")
     public ResponseEntity<UUID>postCreateGroup(@RequestBody CreateGroupRequestDto dto){
         UUID groupId = groupService.createGroup(dto);
-        return ResponseEntity.created(URI.create("/groups/" + groupId)).body(UUID.randomUUID());
+        return ResponseEntity.created(URI.create("/groups/" + groupId)).body(groupId);
     }
 
     @PatchMapping("/{groupId}/add-user/{userId}")
