@@ -3,6 +3,7 @@ package br.com.joga_together.controller;
 import br.com.joga_together.dto.user.ConfirmCodeDto;
 import br.com.joga_together.dto.user.UserCreateRequestDto;
 import br.com.joga_together.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity createUser(@RequestBody UserCreateRequestDto dto) {
+    public ResponseEntity createUser(@RequestBody @Valid UserCreateRequestDto dto) {
         userService.creteUser(dto);
         return ResponseEntity.status(201).build();
     }
